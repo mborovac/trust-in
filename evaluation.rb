@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 class Evaluation
   TYPES = [
-    SIREN = "SIREN"
+    SIREN = "SIREN",
+    VAT = "VAT"
   ].freeze
 
   STATES = [
@@ -21,6 +24,11 @@ class Evaluation
       favorable: 1,
       gte_50_unconfirmed_unable_to_reach_api: 5,
       lt_50_unconfirmed_unable_to_reach_api: 1
+    },
+    VAT: {
+      favorable: 1,
+      gte_50_unconfirmed_unable_to_reach_api: 1,
+      lt_50_unconfirmed_unable_to_reach_api: 3
     }
   }.freeze
 
@@ -34,7 +42,7 @@ class Evaluation
     @reason = reason
   end
 
-  def to_s()
+  def to_s
     "#{@type}, #{@value}, #{@score}, #{@state}, #{@reason}"
   end
 
@@ -72,6 +80,8 @@ class Evaluation
   private
 
   def lower_score_by(amount)
+    amount = score if amount > score
+
     self.score = score - amount
   end
 end

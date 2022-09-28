@@ -1,21 +1,24 @@
+# frozen_string_literal: true
+
 require_relative "evaluation"
 require_relative "opendatasoft_evaluation_accessor"
+require_relative "vat_evaluation_accessor"
 
 class TrustIn
   def initialize(evaluations)
     @evaluations = evaluations
   end
 
-  def update_score()
+  def update_score
     @evaluations.each do |evaluation|
-      next unless evaluation.type == Evaluation::SIREN
+      next unless Evaluation::TYPES.include?(evaluation.type)
 
-      if evaluation.score > 0
+      if evaluation.score.positive?
         evaluation.unconfirmed_ongoing_database_update? ?
           update_evaluation(evaluation) :
           evaluation.decrease_score(get_score_decrease_reason(evaluation))
-      else
-        update_evaluation(evaluation) if evaluation.favorable? || evaluation.unconfirmed?
+      elsif evaluation.favorable? || evaluation.unconfirmed?
+        update_evaluation(evaluation)
       end
     end
   end
@@ -33,6 +36,10 @@ class TrustIn
   end
 
   def update_evaluation(evaluation)
+    send("update_#{evaluation.type.downcase}_evaluation", evaluation)
+  end
+
+  def update_siren_evaluation(evaluation)
     company_state = OpendatasoftEvaluationAccessor.fetch_evaluation_data(evaluation)
     if company_state == "Actif"
       evaluation.state = Evaluation::FAVORABLE
@@ -42,6 +49,13 @@ class TrustIn
       evaluation.reason = Evaluation::COMPANY_CLOSED
     end
 
+    evaluation.score = 100
+  end
+
+  def update_vat_evaluation(evaluation)
+    company_state = VatEvaluationAccessor.fetch_evaluation_data(evaluation)
+    evaluation.state = company_state[:state]
+    evaluation.reason = company_state[:reason]
     evaluation.score = 100
   end
 end
