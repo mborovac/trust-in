@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require File.join(File.dirname(__FILE__), "trustin")
-require File.join(File.dirname(__FILE__), "evaluation")
+require File.join(File.dirname(__FILE__), "../trustin")
+require File.join(File.dirname(__FILE__), "../lib/trustin/evaluation")
 require 'faker'
 
 RSpec.describe TrustIn do

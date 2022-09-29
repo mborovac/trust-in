@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "evaluation"
-require_relative "opendatasoft_evaluation_accessor"
-require_relative "vat_evaluation_accessor"
+require_relative "lib/trustin/evaluation"
+require_relative "lib/trustin/evaluation_accessors/opendatasoft_evaluation_accessor"
+require_relative "lib/trustin/evaluation_accessors/vat_evaluation_accessor"
 
 class TrustIn
   def initialize(evaluations)
